@@ -16,6 +16,9 @@ public class PhysicalObject extends Sprite {
         super(new Texture(picname));
         setBounds(position.x, position.y, width, height);
     }
+    public PhysicalObject(Rectangle rectangle, String picname){
+        this(rectangle.getPosition(new Vector2()), rectangle.width, rectangle.height, picname);
+    }
 
     /**
      * Returns true if the current object is in collision (rectangle overlap) with the object passed

@@ -25,4 +25,7 @@ public abstract class MovingObject extends PhysicalObject {
         translate(speed.x * dt, speed.y * dt);
     }
 
+    public void setSpeed(Vector2 speed){
+        this.speed = speed;
+    }
 }

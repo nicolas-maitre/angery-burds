@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.Random;
@@ -17,6 +18,7 @@ import ch.cpnv.angrywirds.model.PhysicalObject;
 import ch.cpnv.angrywirds.model.Pig;
 import ch.cpnv.angrywirds.model.SceneCollapseException;
 import ch.cpnv.angrywirds.model.Scenery;
+import ch.cpnv.angrywirds.model.Slingshot;
 import ch.cpnv.angrywirds.model.TNT;
 import ch.cpnv.angrywirds.model.Wasp;
 
@@ -29,10 +31,12 @@ public class AngryWirds extends Game implements InputProcessor {
     public static final float WORLD_WIDTH = 1600;
     public static final float WORLD_HEIGHT = 900;
     public static final int FLOOR_HEIGHT = 120;
+    public static  final int MIN_STRENGTH = 50;
 
     private Scenery scene;
     private Bird tweety;
     private Wasp waspy;
+    private Slingshot slingshot;
 
     private SpriteBatch batch;
     private Texture background;
@@ -44,6 +48,8 @@ public class AngryWirds extends Game implements InputProcessor {
     private float cameraEndZoom = 1f;
     private Vector2 cameraStartPos;
     private Vector2 cameraEndPos;
+
+    private Vector2 lastTouchPos;
 
     @Override
     public boolean keyDown(int keycode) {
@@ -62,17 +68,28 @@ public class AngryWirds extends Game implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        throwBird();
+        lastTouchPos = getCameraActualPos(screenX, screenY);
         return true;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        Vector2 launchVector = slingshot.getLaunchVector();
+        if(state != State.READY || launchVector.len() < MIN_STRENGTH){
+            return true;
+        }
+        launchBird(launchVector);
         return false;
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
+        if(state == State.READY) {
+            Vector2 touchPos = getCameraActualPos(screenX, screenY);
+            tweety.setPosition(tweety.getX() + touchPos.x - lastTouchPos.x, tweety.getY() + touchPos.y - lastTouchPos.y);
+            lastTouchPos = touchPos;
+            return true;
+        }
         return false;
     }
 
@@ -102,8 +119,9 @@ public class AngryWirds extends Game implements InputProcessor {
     }
     public void reload(){
         background = new Texture(Gdx.files.internal("background.jpg"));
-        tweety = new Bird(new Vector2(0, WORLD_HEIGHT / 4), new Vector2(200, 400));
         waspy = new Wasp(new Vector2(WORLD_WIDTH / 2, WORLD_HEIGHT / 2), new Vector2(0, 0));
+        tweety = new Bird(new Vector2(200, WORLD_HEIGHT / 4), new Vector2(0, 0));
+        slingshot = new Slingshot(this, 100, 120, 50, 200, tweety);
         restart();
     }
     public void restart(){
@@ -119,8 +137,8 @@ public class AngryWirds extends Game implements InputProcessor {
     }
     public void resetBird(){
         state = State.READY;
-        tweety = new Bird(new Vector2(0, WORLD_HEIGHT / 4), new Vector2(200, 400));
-        animateCam(new Vector2((WORLD_WIDTH / 2) / 2, (WORLD_HEIGHT/2)/2), 2, 4000);
+        slingshot.reset();
+        animateCam(new Vector2((WORLD_WIDTH / 2) / 2, (WORLD_HEIGHT/2)/2), 2, 3000);
     }
     public void buildMap(){
         scene = new Scenery();
@@ -157,10 +175,11 @@ public class AngryWirds extends Game implements InputProcessor {
             }
         }
     }
-    public void throwBird(){
+    public void launchBird(Vector2 speed){
+        tweety.setSpeed(speed);
         state = State.PLAYING;
         //test cam animation
-        animateCam(new Vector2((WORLD_WIDTH/2), WORLD_HEIGHT/2), 1, 6000);
+        animateCam(new Vector2((WORLD_WIDTH/2), WORLD_HEIGHT/2), 1, 2500);
     }
     public void update() {
         float dt = Gdx.graphics.getDeltaTime();
@@ -233,10 +252,15 @@ public class AngryWirds extends Game implements InputProcessor {
         batch.begin();
         batch.setProjectionMatrix(camera.combined);
         batch.draw(background, 0, 0, camera.viewportWidth, camera.viewportHeight);
-        tweety.draw(batch);
+        //tweety.draw(batch);
         waspy.draw(batch);
+        slingshot.render(batch);
         scene.draw(batch);
         batch.end();
     }
 
+    public Vector2 getCameraActualPos(int x, int y){
+        Vector3 actualPos = camera.unproject(new Vector3(x, y, 0));
+        return new Vector2(actualPos.x, actualPos.y);
+    }
 }
