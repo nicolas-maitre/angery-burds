@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import ch.cpnv.angrywirds.AngryWirds;
 
 public class Slingshot {
-    final static float SLING_STRENGTH = 5;
+    final static float SLING_STRENGTH = 3;
     private AngryWirds game;
     private Rectangle rectangle;
     private Bird bird;
@@ -40,6 +40,9 @@ public class Slingshot {
     }
     public Vector2 getOrigin(){
         return new Vector2(rectangle.x + rectangle.width / 2 - bird.getWidth() / 2, rectangle.y + rectangle.height - bird.getHeight());
+    }
+    public Rectangle getRectangle() {
+        return rectangle;
     }
     public Vector2 getLaunchVector(){
         Vector2 origin = getOrigin();
