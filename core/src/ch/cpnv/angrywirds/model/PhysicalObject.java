@@ -11,13 +11,12 @@ import com.badlogic.gdx.math.Vector2;
  */
 
 public class PhysicalObject extends Sprite {
-
+    public PhysicalObject(Rectangle rectangle, String picname){
+        this(rectangle.getPosition(new Vector2()), rectangle.width, rectangle.height, picname);
+    }
     public PhysicalObject(Vector2 position, float width, float height, String picname) {
         super(new Texture(picname));
         setBounds(position.x, position.y, width, height);
-    }
-    public PhysicalObject(Rectangle rectangle, String picname){
-        this(rectangle.getPosition(new Vector2()), rectangle.width, rectangle.height, picname);
     }
 
     /**
