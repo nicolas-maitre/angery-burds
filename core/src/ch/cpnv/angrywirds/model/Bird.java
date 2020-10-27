@@ -1,6 +1,10 @@
 package ch.cpnv.angrywirds.model;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
+
+import ch.cpnv.angrywirds.AngryWirds;
+import ch.cpnv.angrywirds.activities.Play;
 
 /**
  * Created by Xavier on 06.05.18.

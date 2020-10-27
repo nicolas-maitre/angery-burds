@@ -4,6 +4,7 @@ package ch.cpnv.angrywirds.model;
 import com.badlogic.gdx.math.Vector2;
 
 import ch.cpnv.angrywirds.AngryWirds;
+import ch.cpnv.angrywirds.activities.Play;
 
 /**
  * Created by Xavier on 06.05.18.
@@ -30,7 +31,7 @@ public final class Wasp extends MovingObject {
         // if the wasp is on the right of the screen, X is close to WORLD_WIDTH and thus X / WORLD_WIDTH is close to 1.
         // So alea.nextFloat() minus something close to 1 is very likely to be a negative value, i.e: oriented towards the left of the screen
 
-        Vector2 folly = new Vector2(AngryWirds.alea.nextFloat()-(getX()/AngryWirds.WORLD_WIDTH),AngryWirds.alea.nextFloat()-(getY()/AngryWirds.WORLD_HEIGHT));
+        Vector2 folly = new Vector2(AngryWirds.alea.nextFloat()-(getX()/ Play.WORLD_WIDTH),AngryWirds.alea.nextFloat()-(getY()/Play.WORLD_HEIGHT));
         speed = speed.add(folly.scl(AGITATION*dt));
     }
 }
