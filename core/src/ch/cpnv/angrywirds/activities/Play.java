@@ -22,7 +22,6 @@ import ch.cpnv.angrywirds.model.ObjectOutOfBoundsException;
 import ch.cpnv.angrywirds.model.Panel;
 import ch.cpnv.angrywirds.model.PhysicalObject;
 import ch.cpnv.angrywirds.model.Pig;
-import ch.cpnv.angrywirds.model.RubberBand;
 import ch.cpnv.angrywirds.model.SceneCollapseException;
 import ch.cpnv.angrywirds.model.Scenery;
 import ch.cpnv.angrywirds.model.Slingshot;
@@ -48,17 +47,21 @@ public class Play extends Game implements InputProcessor {
     private VocProvider vocSource = VocProvider.getInstance();
     private Vocabulary voc;
     private Panel panel;
+    private BitmapFont scoreDisp;
+
     private int scoreVal;
 
     private Slingshot slingshot;
 
     private SpriteBatch batch;
     private SpriteBatch backgroundBatch;
+    private SpriteBatch interfaceBatch;
     private Texture background;
     private Texture foreground;
 
     private OrthographicCamera backgroundCam;
     private OrthographicCamera camera;
+    private OrthographicCamera interfaceCam;
     private long cameraStartStamp = -1;
     private long cameraDuration = -1;
     private float cameraStartZoom = 1f;
@@ -85,10 +88,15 @@ public class Play extends Game implements InputProcessor {
         alea = new Random();
         batch = new SpriteBatch();
         backgroundBatch = new SpriteBatch();
+        interfaceBatch = new SpriteBatch();
         backgroundCam = new OrthographicCamera();
         backgroundCam.setToOrtho(false, WORLD_WIDTH, WORLD_HEIGHT);
         camera = new OrthographicCamera();
         camera.setToOrtho(false, WORLD_WIDTH, WORLD_HEIGHT);
+        interfaceCam = new OrthographicCamera();
+        interfaceCam.setToOrtho(false, WORLD_WIDTH, WORLD_HEIGHT);
+        interfaceCam.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
+        interfaceCam.update();
         Gdx.input.setInputProcessor(this);
         reload();
     }
@@ -134,7 +142,7 @@ public class Play extends Game implements InputProcessor {
         int pigsLeft = 5;
         while (pigsLeft > 0) {
             try {
-                scene.dropElement(new Pig(new Vector2(alea.nextFloat()*WORLD_WIDTH,FLOOR_HEIGHT+ BLOCK_SIZE),"?"));
+                scene.dropElement(new Pig(new Vector2(alea.nextFloat()*WORLD_WIDTH,FLOOR_HEIGHT+ BLOCK_SIZE),voc.pickAWord()));
                 pigsLeft--;
             } catch (ObjectOutOfBoundsException e) {
                 Gdx.app.log("ANGRY", "Pig out of bounds: "+e.getMessage());
@@ -263,9 +271,8 @@ public class Play extends Game implements InputProcessor {
         backgroundBatch.begin();
         backgroundBatch.setProjectionMatrix(backgroundCam.combined);
         backgroundBatch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        //backgroundBatch.draw(background, 0, 0, camera.viewportWidth, camera.viewportHeight);
-
         backgroundBatch.end();
+
         batch.begin();
         batch.setProjectionMatrix(camera.combined);
         batch.draw(foreground, 0, 0, camera.viewportWidth, camera.viewportHeight);
@@ -273,8 +280,12 @@ public class Play extends Game implements InputProcessor {
         waspy.draw(batch);
         scene.draw(batch);
         slingshot.render(batch);
-        panel.draw(batch);
         batch.end();
+
+        interfaceBatch.begin();
+        interfaceBatch.setProjectionMatrix(interfaceCam.combined);
+        panel.draw(interfaceBatch);
+        interfaceBatch.end();
     }
     private void displayScore(SpriteBatch batch)
     {
@@ -306,7 +317,7 @@ public class Play extends Game implements InputProcessor {
         lastTouchPos = getCameraActualPos(screenX, screenY);
         birdTouched = tweety.getBoundingRectangle().contains(lastTouchPos);
         if(!birdTouched){
-            scene.handleTouchDown(pointTouched); // handle effect on pigs
+            scene.handleTouchDown(lastTouchPos); // handle effect on pigs
         }
         return true;
     }
@@ -320,7 +331,7 @@ public class Play extends Game implements InputProcessor {
             }
             launchBird(launchVector);
         }else{
-            scene.handleTouchUp(pointTouched); // handle effect on pigs
+            scene.handleTouchUp(getCameraActualPos(screenX, screenY)); // handle effect on pigs
         }
         return true;
     }
@@ -328,6 +339,9 @@ public class Play extends Game implements InputProcessor {
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
         if(state != State.READY) {
+            return false;
+        }
+        if(lastRealTouchPos == null){
             return false;
         }
         Vector2 realTouchPos = new Vector2(screenX, screenY);

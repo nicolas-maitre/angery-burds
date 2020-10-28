@@ -78,7 +78,17 @@ public final class Scenery {
      */
     public void draw(Batch batch)
     {
-        for (PhysicalObject p : scene) p.draw(batch);
+        ArrayList<Pig> pigsList = new ArrayList<Pig>();
+        for (PhysicalObject p : scene){
+            if(p instanceof Pig){
+                pigsList.add(0, (Pig)p);
+            }else {
+                p.draw(batch);
+            }
+        }
+        for (Pig p : pigsList){
+            p.draw(batch);
+        }
     }
 
     /**

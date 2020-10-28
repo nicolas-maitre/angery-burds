@@ -5,23 +5,24 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import ch.cpnv.angrywirds.AngryWirds;
+import ch.cpnv.angrywirds.activities.Play;
 
 public class Slingshot {
     final static float SLING_STRENGTH = 3;
-    private AngryWirds game;
+    private Play game;
     private Rectangle rectangle;
     private Bird bird;
     private PhysicalObject backBase;
     private PhysicalObject frontBase;
     private PhysicalObject backRubber;
     private PhysicalObject frontRubber;
-    public Slingshot(AngryWirds game, Rectangle rectangle, Bird bird){
+    public Slingshot(Play game, Rectangle rectangle, Bird bird){
         this.game = game;
         this.rectangle = rectangle;
         this.bird = bird;
         build();
     }
-    public Slingshot(AngryWirds game,  float x, float y, float width, float height, Bird bird){
+    public Slingshot(Play game, float x, float y, float width, float height, Bird bird){
         this(game, new Rectangle(x,y,width,height), bird);
     }
     public void build(){
