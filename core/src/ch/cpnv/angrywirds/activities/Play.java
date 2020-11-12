@@ -285,6 +285,7 @@ public class Play extends Game implements InputProcessor {
         interfaceBatch.begin();
         interfaceBatch.setProjectionMatrix(interfaceCam.combined);
         panel.draw(interfaceBatch);
+        displayScore(interfaceBatch);
         interfaceBatch.end();
     }
     private void displayScore(SpriteBatch batch)

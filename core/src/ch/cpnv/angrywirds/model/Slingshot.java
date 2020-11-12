@@ -28,6 +28,7 @@ public class Slingshot {
     public void build(){
         backBase = new PhysicalObject(rectangle, "slingshot1.png");
         frontBase = new PhysicalObject(rectangle, "slingshot2.png");
+        //backRubber = new PhysicalObject()
     }
     public void reset(){
         Vector2 origin = getOrigin();
