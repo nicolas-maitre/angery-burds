@@ -77,6 +77,7 @@ public class GameOver extends Game implements InputProcessor {
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         AngryWirds.pages.pop(); // Game over
         AngryWirds.pages.pop(); // Play
+        AngryWirds.pages.peek().create(); // Welcome
         Gdx.input.setInputProcessor((InputProcessor)AngryWirds.pages.peek()); // Welcome
         return false;
     }

@@ -39,6 +39,6 @@ public class Button extends TextualObject implements Clickable {
         return false;
     }
     public void onClick(){
-        System.out.println("onclick!");
+        System.out.println("onclick! this hasn't been handled.");
     }
 }
