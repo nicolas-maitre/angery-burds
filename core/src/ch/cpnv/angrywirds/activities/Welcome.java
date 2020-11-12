@@ -39,8 +39,6 @@ public class Welcome extends Game implements InputProcessor {
     private ArrayList<ArrayList<Button>> langButtons;
 
     private ArrayList<Language> languages;
-    private String fromLang;
-    private String toLang;
 
     private OrthographicCamera camera;
 
@@ -132,7 +130,9 @@ public class Welcome extends Game implements InputProcessor {
         batch.setProjectionMatrix(camera.combined);
         batch.draw(background, 0, 0, camera.viewportWidth, camera.viewportHeight);
         title.draw(batch,"Hello",LEFT_MARGIN,WORLD_HEIGHT - 100);
-        subTitle.draw(batch, "Exercice de " + (fromLang!=null ? fromLang:"(choisir)") + " en " + (toLang!=null ? toLang:"(choisir)"), LEFT_MARGIN, WORLD_HEIGHT - 200);
+        Language fromLang = languages.get(0);
+        Language toLang = languages.get(1);
+        subTitle.draw(batch, "Exercice de " + (fromLang!=null ? fromLang.getDisplayName():"(choisir)") + " en " + (toLang!=null ? toLang.getDisplayName():"(choisir)"), LEFT_MARGIN, WORLD_HEIGHT - 200);
         playButton.draw(batch);
         for (ArrayList<Button> buttonList:langButtons) {
             for (Button button:buttonList) {
