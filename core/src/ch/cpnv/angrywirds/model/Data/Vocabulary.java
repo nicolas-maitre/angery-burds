@@ -1,27 +1,28 @@
 package ch.cpnv.angrywirds.model.Data;
-
 import java.util.ArrayList;
 
 import ch.cpnv.angrywirds.AngryWirds;
-
-/**
- * Created by Xavier on 07.06.18.
- */
+import ch.cpnv.angrywirds.model.Data.SemanticWord;
 
 public class Vocabulary {
-    String vocName;
-    ArrayList<Word> words;
+    /*public String title;
+    public ArrayList<Word> words = new ArrayList<Word>();
+    public Vocabulary(String title){
+        this.title = title;
+    }
+    public void addWord(){
 
+    }*/
+    private String vocName;
+    private ArrayList<SemanticWord> words;
     public Vocabulary(String vocName){
         this.vocName = vocName;
-        this.words = new ArrayList<Word>();
+        words = new ArrayList<SemanticWord>();
     }
-
-    public void addWord(Word w) {
-        words.add(w);
+    public void addWord(SemanticWord word){
+        words.add(word);
     }
-
-    public Word pickAWord() {
+    public SemanticWord pickAWord(){
         return words.get(AngryWirds.alea.nextInt(words.size()));
-    } // TODO pick a non-allocated word
+    }
 }

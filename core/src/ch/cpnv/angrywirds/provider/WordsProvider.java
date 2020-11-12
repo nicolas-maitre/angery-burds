@@ -2,9 +2,11 @@ package ch.cpnv.angrywirds.provider;
 
 import java.util.HashMap;
 
+import ch.cpnv.angrywirds.model.Data.Vocabulary;
+
 public class WordsProvider {
     private static WordsProvider instance = null;
-    private HashMap<String, Vocabulary> vocabularies;
+    private HashMap<String, ch.cpnv.angrywirds.model.Data.Vocabulary> vocabularies;
     private WordsProvider(){
         throw new Error("nooooo");
     }

@@ -19,12 +19,14 @@ import java.util.Arrays;
 import ch.cpnv.angrywirds.AngryWirds;
 import ch.cpnv.angrywirds.model.Button;
 import ch.cpnv.angrywirds.model.Clickable;
+import ch.cpnv.angrywirds.provider.Language;
 
 public class Welcome extends Game implements InputProcessor {
 
     public static final float WORLD_WIDTH = 1600;
     public static final float WORLD_HEIGHT = 900;
     public static final float LEFT_MARGIN = 400;
+    public static final float LANGUAGES_COUNT = 2;
 
     private ArrayList<Clickable> clickables;
 
@@ -34,9 +36,9 @@ public class Welcome extends Game implements InputProcessor {
     private BitmapFont subTitle;
 
     private Button playButton;
-    private ArrayList<Button> fromButtons;
-    private ArrayList<Button> toButtons;
+    private ArrayList<ArrayList<Button>> langButtons;
 
+    private ArrayList<Language> languages;
     private String fromLang;
     private String toLang;
 
@@ -48,6 +50,11 @@ public class Welcome extends Game implements InputProcessor {
 
     @Override
     public void create() {
+        final ArrayList<Language> srcLanguages = new ArrayList<Language>(Arrays.asList(
+                new Language("fr", "Français"),
+                new Language("en", "English"),
+                new Language("es", "Español")
+        ));
         clickables = new ArrayList<Clickable>();
 
         batch = new SpriteBatch();
@@ -68,47 +75,50 @@ public class Welcome extends Game implements InputProcessor {
 
         Gdx.input.setInputProcessor(this);
 
+        languages = new ArrayList<Language>();
+        for (int i = 0; i < LANGUAGES_COUNT; i++) {
+            languages.add(null);
+        }
+
         //buttons
         ;
         playButton = new Button(new Rectangle(LEFT_MARGIN - 320, WORLD_HEIGHT - 250, 300, 50), "Go!"){
             @Override
             public void onClick() {
-                AngryWirds.pages.push(new Play());
+                AngryWirds.pages.push(new Play(languages));
             }
         };
         playButton.isHidden = true;
 
-        final ArrayList<String> languages = new ArrayList<String>(Arrays.asList("Français", "English", "Español"));
-        fromButtons = new ArrayList<Button>();
-        toButtons = new ArrayList<Button>();
-        for (int indCol = 0; indCol < 2; indCol++) {
+        langButtons = new ArrayList<ArrayList<Button>>();
+        for (int indCol = 0; indCol < LANGUAGES_COUNT; indCol++) {
             final int colNum = indCol;
-            final ArrayList<Button> currentList = (colNum==0)?fromButtons:toButtons;
-            for (int indLang = 0; indLang < languages.size(); indLang++) {
-                final String lang = languages.get(indLang);
-                currentList.add(new Button(new Rectangle(LEFT_MARGIN + (colNum * 400), WORLD_HEIGHT - (400 + indLang * 70), 300, 50), lang) {
+            final ArrayList<Button> currentList = new ArrayList<Button>();
+            langButtons.add(currentList);
+            for (int indLang = 0; indLang < srcLanguages.size(); indLang++) {
+                final Language language = srcLanguages.get(indLang);
+                currentList.add(new Button(new Rectangle(LEFT_MARGIN + (colNum * 400), WORLD_HEIGHT - (400 + indLang * 70), 300, 50), language.getDisplayName()) {
                     @Override
                     public void onClick() {
-                        System.out.println("click on " + lang);
-                        if(colNum == 0){
-                            fromLang = lang;
-                        }else{
-                            toLang = lang;
-                        }
-                        for (Button button:currentList) {
+                        System.out.println("click on " + language.getDisplayName());
+                        languages.set(colNum, language);
+                        for (Button button : currentList) {
                             button.isHidden = true;
                         }
-                        if(fromLang != null && toLang != null){
-                            playButton.isHidden = false;
+
+                        //all languages are selected
+                        for (Language chkLang:languages) {
+                            if(chkLang == null){
+                                return;
+                            }
                         }
+                        playButton.isHidden = false;
                     }
                 });
             }
+            clickables.addAll(currentList);
         }
-
         clickables.add(playButton);
-        clickables.addAll(fromButtons);
-        clickables.addAll(toButtons);
     }
 
     public void update() {
@@ -124,11 +134,10 @@ public class Welcome extends Game implements InputProcessor {
         title.draw(batch,"Hello",LEFT_MARGIN,WORLD_HEIGHT - 100);
         subTitle.draw(batch, "Exercice de " + (fromLang!=null ? fromLang:"(choisir)") + " en " + (toLang!=null ? toLang:"(choisir)"), LEFT_MARGIN, WORLD_HEIGHT - 200);
         playButton.draw(batch);
-        for (Button button:fromButtons) {
-            button.draw(batch);
-        }
-        for (Button button:toButtons) {
-            button.draw(batch);
+        for (ArrayList<Button> buttonList:langButtons) {
+            for (Button button:buttonList) {
+                button.draw(batch);
+            }
         }
         batch.end();
     }

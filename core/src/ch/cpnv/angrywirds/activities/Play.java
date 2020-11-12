@@ -9,15 +9,14 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.TimeUtils;
 
+import java.util.ArrayList;
 import java.util.Random;
 import ch.cpnv.angrywirds.AngryWirds;
 import ch.cpnv.angrywirds.model.Bird;
-import ch.cpnv.angrywirds.model.Data.Vocabulary;
 import ch.cpnv.angrywirds.model.ObjectOutOfBoundsException;
 import ch.cpnv.angrywirds.model.Panel;
 import ch.cpnv.angrywirds.model.PhysicalObject;
@@ -27,6 +26,9 @@ import ch.cpnv.angrywirds.model.Scenery;
 import ch.cpnv.angrywirds.model.Slingshot;
 import ch.cpnv.angrywirds.model.TNT;
 import ch.cpnv.angrywirds.model.Wasp;
+import ch.cpnv.angrywirds.provider.Language;
+import ch.cpnv.angrywirds.model.Data.Vocabulary;
+import ch.cpnv.angrywirds.provider.TranslationDoesNotExistException;
 import ch.cpnv.angrywirds.providers.VocProvider;
 import static ch.cpnv.angrywirds.model.Scenery.BLOCK_SIZE;
 
@@ -48,6 +50,8 @@ public class Play extends Game implements InputProcessor {
     private Vocabulary voc;
     private Panel panel;
     private BitmapFont scoreDisp;
+    private Language firstLang;
+    private Language secondLang;
 
     private int scoreVal;
 
@@ -79,7 +83,9 @@ public class Play extends Game implements InputProcessor {
     }
     public State state;
 
-    public Play(){
+    public Play(ArrayList<Language> langs){
+        firstLang = langs.get(0);
+        secondLang = langs.get(1);
         create();
     }
 
@@ -109,12 +115,16 @@ public class Play extends Game implements InputProcessor {
         slingshot = new Slingshot(this, 100, FLOOR_HEIGHT, 50, 200, tweety);
         restart();
     }
-    public void restart(){
+    public void restart() {
         //camera.position.set((camera.viewportWidth/2), camera.viewportHeight/2, 0);
         //camera.update();
         voc = vocSource.pickAVoc();
-        buildMap();
-        buildPanel();
+        try {
+            buildMap();
+            buildPanel();
+        } catch (TranslationDoesNotExistException e) {
+            Gdx.app.log("ANGRY", "Translation does not exist"+e.getMessage());
+        }
         resetBird();
 //        camera.position.set(WORLD_WIDTH/2, WORLD_HEIGHT/2, 0);
     }
@@ -127,8 +137,8 @@ public class Play extends Game implements InputProcessor {
         slingshot.reset();
         animateCam(new Vector2((WORLD_WIDTH / 2) / 2, (WORLD_HEIGHT/2)/2), 2, 1500);
     }
-    public void buildMap(){
-        scene = new Scenery();
+    public void buildMap() throws TranslationDoesNotExistException {
+        scene = new Scenery(this);
         //scene.addFloor();
         for (int i=0; i<150; i++) {
             try {
@@ -142,7 +152,7 @@ public class Play extends Game implements InputProcessor {
         int pigsLeft = 5;
         while (pigsLeft > 0) {
             try {
-                scene.dropElement(new Pig(new Vector2(alea.nextFloat()*WORLD_WIDTH,FLOOR_HEIGHT+ BLOCK_SIZE),voc.pickAWord()));
+                scene.dropElement(new Pig(new Vector2(alea.nextFloat()*WORLD_WIDTH,FLOOR_HEIGHT+ BLOCK_SIZE),voc.pickAWord(), secondLang));
                 pigsLeft--;
             } catch (ObjectOutOfBoundsException e) {
                 Gdx.app.log("ANGRY", "Pig out of bounds: "+e.getMessage());
@@ -162,8 +172,8 @@ public class Play extends Game implements InputProcessor {
             }
         }
     }
-    public void buildPanel(){
-        panel = new Panel(scene.pickAWord());
+    public void buildPanel() throws TranslationDoesNotExistException {
+        panel = new Panel(scene.pickAWord(), firstLang);
         scoreVal = 3; // allow a few mistakes before game over
         scoreDisp= new BitmapFont();
         scoreDisp.setColor(Color.BLACK);
@@ -371,5 +381,12 @@ public class Play extends Game implements InputProcessor {
     @Override
     public boolean scrolled(int amount) {
         return false;
+    }
+
+    public Language getFirstLang() {
+        return firstLang;
+    }
+    public Language getSecondLang() {
+        return secondLang;
     }
 }

@@ -1,7 +1,6 @@
 package ch.cpnv.angrywirds.model;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -10,7 +9,7 @@ import java.util.ArrayList;
 
 import ch.cpnv.angrywirds.AngryWirds;
 import ch.cpnv.angrywirds.activities.Play;
-import ch.cpnv.angrywirds.model.Data.Word;
+import ch.cpnv.angrywirds.model.Data.SemanticWord;
 
 /**
  * Contains all the static items to display in our world
@@ -24,9 +23,12 @@ public final class Scenery {
     private static final float X_MAX = Play.WORLD_WIDTH-150;
     private static final float Y_MAX = Play.WORLD_HEIGHT * 0.75f;
 
+    private Game game;
+
     private ArrayList<PhysicalObject> scene;
 
-    public Scenery() {
+    public Scenery(Game game) {
+        this.game = game;
         scene = new ArrayList<PhysicalObject>();
     }
 
@@ -120,7 +122,7 @@ public final class Scenery {
         }
     }
 
-    public Word pickAWord()
+    public SemanticWord pickAWord()
     {
         // build a list of pigs
         ArrayList<Pig> pigs = new ArrayList<Pig>();
